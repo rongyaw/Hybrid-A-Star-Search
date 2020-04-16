@@ -1,5 +1,6 @@
 # Global-Hybrid-A-Search
 This project tests hybrid A* search alogrithm based on ackermann steering holonomic constraint.<br/>
-The simulation was built on MATLAB.  Run hybrid_A_star to perform the test.<br/>
-ackermann_sampler function was built to perform holonomic search sampling based on the lowest cost in open list.<br/>
-collision_check function was implemented to check if the sampling point is in collision with obstacles.<br/>
+1. The simulation was built on MATLAB.<br/>
+2. Run hybrid_A_star.m to perform the test.<br/>
+3. ackermann_sampler.m is the function built to perform holonomic search sampling based on the lowest cost in open list.<br/>
+4. collision_check is the function implemented to check if the sampling point is in collision with obstacles.<br/>
