@@ -1,4 +1,4 @@
-function goal = ackermann_sampler(source, steering, arc_length, collision_check, obstacles, vertex, id)
+function goal = ackermann_sampler(direction,source, steering, arc_length, collision_check, obstacles, vertex, id)
 % This function returns the sampler from ackermann steering
 % The return format is [x,y,yaw,distance_travelled,mother_id]
 % 1. Setup the initial state of the sampler
@@ -13,12 +13,14 @@ data_x = zeros(length(steering), length(arc_length));
 data_y = data_x;
 car_length = 0.33;
 goal = [];
-arc = linspace(0.01,arc_length,5);
+arc = direction*linspace(0.01,arc_length,15);
 open_vertex = vertex;
 % 2. Search all the possible solution and
 for i = 1:1:length(steering)
     collision = false;
     turning_radius = car_length/tan(steering(i));
+    alpha_forward = arc(end)/turning_radius;
+    %alpha_backward = arc(1)/turning_radius;
     for j = 1:1:length(arc)
         alpha = arc(j)/turning_radius;
         data_x(i,j) = turning_radius*sin(alpha);
@@ -27,7 +29,8 @@ for i = 1:1:length(steering)
     % Perform the coordinate transformation
     x_glob = x + data_x(i,:)*cos(yaw) - data_y(i,:)*sin(yaw);
     y_glob = y + data_x(i,:)*sin(yaw) + data_y(i,:)*cos(yaw);
-    yaw_glob = yaw + alpha;
+    yaw_glob_f = yaw + alpha_forward;
+    %yaw_glob_b = yaw + alpha_backward;
     % Perform the collision check
     for k = 1:1:length(x_glob)
         if collision_check(obstacles, [x_glob(k), y_glob(k)])
@@ -46,12 +49,18 @@ for i = 1:1:length(steering)
         else
             min_open_dist_abs = Inf;
         end
-        if min_open_dist_abs < 0.5
+        if min_open_dist_abs < 0.25
             continue
         else
-            plot(x_glob, y_glob,'-b');hold on
+            if direction == 1
+                plot(x_glob, y_glob,'--b','Linewidth',1.2);hold on
+            else
+                plot(x_glob, y_glob,'--g','Linewidth',1.2);hold on
+            end
             id = id + 1;
-            goal = [goal;[x_glob(end), y_glob(end), yaw_glob, m_distance + arc_length,current_id,id]];
+            goal = [goal;[x_glob(end), y_glob(end), yaw_glob_f, m_distance + arc_length, current_id, id]];
+            %id = id + 1;
+            %goal = [goal;[x_glob(1), y_glob(1), yaw_glob_b, m_distance + arc_length,current_id,id]];
         end
     end
 end

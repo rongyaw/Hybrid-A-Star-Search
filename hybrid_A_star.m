@@ -15,8 +15,8 @@ close all
 dbstop if error
 
 %%  Create the obstacles and start/goal location
-obstacles = [1,2,0,10;
-            4,5,-7,4;
+obstacles = [1,2,2,10;
+            4,5,0,4;
             -4,-3,-10,-2;
             7,8,2,8;
             -1,0,-5,1;
@@ -42,14 +42,14 @@ for i = 1:1:length(obstacles(:,1))
 end
 
 % Setup the start and goal location for nvaigation and plot them
-start_x = -7;
-start_y = -3;
+start_x = -6;
+start_y = 6;
 start_yaw = 0;
-goal_x = 10;
+goal_x = 8;
 goal_y = 1;
-plot(start_x, start_y, '>g', 'MarkerSize', 15, 'MarkerFaceColor', 'g');hold on
-plot(goal_x, goal_y, '>r', 'MarkerSize', 15, 'MarkerFaceColor', 'r');hold on
-
+plot(start_x, start_y, 'og', 'MarkerSize', 15, 'MarkerFaceColor', 'g');hold on
+plot(goal_x, goal_y, 'or', 'MarkerSize', 15, 'MarkerFaceColor', 'r');hold on
+xlim([start_x-2, goal_x+2])
 %%  Create open_list and closed list
 % This is the simplified version a heap structure.
 open = []; % Store the information of vertex
@@ -59,7 +59,7 @@ open_c = []; % Combine the previous two as cost value
 close = []; % Create closed list for finding optimal path
 
 %%  Create the steering angle and arc length for sampling
-steering = linspace(-0.4,0.4,10);
+steering = linspace(-0.4,0.4,8);
 arc_length = input('Please define sampling distance: ');
 
 %%  Searching over the map to reach the goal from the start
@@ -74,21 +74,23 @@ open = [start_x, start_y, start_yaw, 0, mother_id, id];
 vertex_sum = [start_x, start_y];
 open_f = [open_f, pdist([open(1:2);[goal_x, goal_y]])]; % eucliden heuristic function
 open_c = open_f + open(end);
-
+counter = 0;
 % Start the timer
 tic
 while length(open_c) ~= 0
     % Pop the minimum cost value
-    [~,source_ind] = min(open_c);
+    [min_cost,source_ind] = min(open_c); % Pop up the smallest key value from open list
     source = open(source_ind,:); % Pop up the smallest key value from open list
-    close = [close; source];
+    close = [close; [source, min_cost]];
     if pdist([source(1:2);[goal_x, goal_y]]) < 0.5
         break
     end
     open(source_ind,:) = []; % Delete the pop-up key from open list
     open_f(source_ind) = []; % Same as above
     open_c(source_ind) = []; % Same as above
-    sample = ackermann_sampler(source, steering, arc_length, @collision_check, obstacles, vertex_sum, id); % Search from the pop-up point
+    sample = ackermann_sampler(1, source, steering, arc_length, @collision_check, obstacles, vertex_sum, id); % Search from the pop-up point
+    counter = counter + 1;
+    disp(['This is the ',num2str(counter),'th sampling!']);
     if ~isempty(sample)
         f = sample(:,1:2) - [goal_x, goal_y];
         f = (f(:,1).^2 + f(:,2).^2).^0.5;
@@ -104,8 +106,11 @@ toc % Stop the timer
 disp(['Total node explored is ',num2str(length(vertex_sum(:,1)))]);
 
 %%  Search through the closed list to find the path.
-% Start from the last point and draw the path between them
-search_id =  close(end, 5);
+
+%Start from the last point and draw the path between them
+[~,min_id] =  min(close(:, 7));
+search_id = close(min_id, 5);
+plot(close(min_id,1), close(min_id,2),'rs','MarkerSize',6,'MarkerFaceColor','r');hold on
 path_point = []; % Store the path from closed list
 while search_id ~= 0
     point_id = find(close(:,6)== search_id);
@@ -132,5 +137,5 @@ for i = length(path_point):-1:2
     plot(x_glob, y_glob,'-r','LineWidth',3);hold on
 end
 plot([path_point(1,1),goal_x],[path_point(1,2),goal_y],'-r','LineWidth',3);hold off
-title('Hybrid A* Search Demo','FontSize',15);
-xlim([-8,12]);
+title('Local Hybrid A* Search','FontSize',15);
+xlim([start_x,goal_x]);
