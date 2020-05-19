@@ -42,20 +42,20 @@ for i = 1:1:length(steering)
         continue
     % Check if the vertex has been visited
     else
-        if length(vertex) ~=0
+        if ~isempty(vertex)
             open_dist = abs(open_vertex - [x_glob(end), y_glob(end)]);
             open_dist_abs = open_dist(:,1) + open_dist(:,2);
             min_open_dist_abs = min(open_dist_abs);
         else
             min_open_dist_abs = Inf;
         end
-        if min_open_dist_abs < 0.25
+        if min_open_dist_abs < 0.5
             continue
         else
             if direction == 1
-                plot(x_glob, y_glob,'--b','Linewidth',1.2);hold on
+                plot(x_glob, y_glob,'-b','Linewidth',1);hold on
             else
-                plot(x_glob, y_glob,'--g','Linewidth',1.2);hold on
+                plot(x_glob, y_glob,'-g','Linewidth',1);hold on
             end
             id = id + 1;
             goal = [goal;[x_glob(end), y_glob(end), yaw_glob_f, m_distance + arc_length, current_id, id]];
