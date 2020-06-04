@@ -44,15 +44,15 @@ end
 % Setup the start and goal location for nvaigation and plot them
 start_x = -8;
 start_y = -8;
-start_yaw = random('Uniform',0,3.14);
+start_yaw = 0;%random('Uniform',0,3.14);
 goal_x = 6;
 goal_y = 8;
 plot(start_x, start_y, 'og', 'MarkerSize', 15, 'MarkerFaceColor', 'g');hold on
 plot(goal_x, goal_y, 'or', 'MarkerSize', 15, 'MarkerFaceColor', 'r');hold on
-xlim([start_x-2, goal_x+2])
+xlim([start_x-2, goal_x+4])
 
 %%  Create the steering angle and arc length for sampling
-steering = linspace(-0.45,0.45,6);
+steering = linspace(-0.41,0.41,6);
 arc_length = 0.5;
 counter_max = 2;
 goal_reach = false;
@@ -67,7 +67,7 @@ while goal_reach == false
     open_g = []; % Store the corresponding key values: g(n)
     open_c = []; % Combine the previous two as cost value
     close = []; % Create closed list for finding optimal path
-    open = [start_x, start_y, start_yaw, 0, mother_id, id];
+    open = [start_x, start_y, start_yaw, 0, mother_id, id, arc_length];
     vertex_sum = [start_x, start_y];
     open_f = [open_f, pdist([open(1:2);[goal_x, goal_y]])]; % eucliden heuristic function
     open_c = open_f + open(end);
@@ -92,16 +92,16 @@ while goal_reach == false
             f = (f(:,1).^2 + f(:,2).^2).^0.5;
             open = [open; sample];
             open_f = [open_f, f.'];
-            open_c = open_f + w_gn*open(:,4).';
+            open_c = open_f + w_gn * open(:,4).';
             counter = counter + 1;
-            arc_length = max(0.75, arc_length*0.5);
+            arc_length = max(0.75, arc_length * 0.5);
             drawnow
             % In this case, the weight of distance travelled is set to be lower than distance to the goal
         else
             if isempty(open_c)
                 direction = direction*(-1);
                 counter_max = min(30, counter_max + 1);
-                arc_length = min(arc_length*1.2, 1.5);
+                arc_length = min(arc_length*1.1, 1.5);
                 disp(['Counter max now is ', num2str(counter_max), ' with sample length of ',num2str(arc_length), ' m.']);
             end
         end
@@ -127,14 +127,16 @@ while goal_reach == false
     start_y = path_point(1,2);
     start_yaw = path_point(1,3);
     plot(start_x, start_y, '>b', 'MarkerSize', 15, 'MarkerFaceColor', 'b');hold on
-
-    if direction == 1 % Use different plotting line to show the car's orientation
+    
+    % Use different plotting line to show the car's orientation
+    if direction == 1
         plot(path_point(:,1), path_point(:,2), 'r-','Linewidth',4);hold on
     else
         plot(path_point(:,1), path_point(:,2), 'k-','Linewidth',4);hold on
     end
-
-    if pdist([path_point(1,1:2);[goal_x, goal_y]]) < 0.5 % Check if the final destination is reached
+    
+    % Check if the final destination is reached
+    if pdist([path_point(1,1:2);[goal_x, goal_y]]) < 0.5 
         goal_reach = true;
         disp(['Goal Reach']);
     end

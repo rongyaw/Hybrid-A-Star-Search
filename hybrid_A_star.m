@@ -35,21 +35,22 @@ for i = 1:1:length(obstacles(:,1))
     obs_x = [min_x, max_x, max_x, min_x, min_x];
     obs_y = [min_y, min_y, max_y, max_y, min_y];
     plot(obs_x, obs_y, 'k-', 'Linewidth',5);hold on;
-    clear min_x; 
-    clear max_x; 
-    clear min_y; 
+    clear min_x;
+    clear max_x;
+    clear min_y;
     clear max_y;
 end
 
 % Setup the start and goal location for nvaigation and plot them
-start_x = -6;
-start_y = 6;
-start_yaw = 0;
-goal_x = 8;
-goal_y = 1;
+start_x = -8;
+start_y = -8;
+start_yaw = 0;%random('Uniform',0,3.14);
+goal_x = 6;
+goal_y = 8;
 plot(start_x, start_y, 'og', 'MarkerSize', 15, 'MarkerFaceColor', 'g');hold on
 plot(goal_x, goal_y, 'or', 'MarkerSize', 15, 'MarkerFaceColor', 'r');hold on
-xlim([start_x-2, goal_x+2])
+xlim([start_x-2, goal_x+4])
+
 %%  Create open_list and closed list
 % This is the simplified version a heap structure.
 open = []; % Store the information of vertex
@@ -70,7 +71,7 @@ global id
 id = 1;
 mother_id = 0;
 w_gn = input('Please define the weight of g(n): ');
-open = [start_x, start_y, start_yaw, 0, mother_id, id];
+open = [start_x, start_y, start_yaw, 0, mother_id, id, arc_length];
 vertex_sum = [start_x, start_y];
 open_f = [open_f, pdist([open(1:2);[goal_x, goal_y]])]; % eucliden heuristic function
 open_c = open_f + open(end);
@@ -108,7 +109,7 @@ disp(['Total node explored is ',num2str(length(vertex_sum(:,1)))]);
 %%  Search through the closed list to find the path.
 
 %Start from the last point and draw the path between them
-[~,min_id] =  min(close(:, 7));
+[~,min_id] =  min(close(:, 8));
 search_id = close(min_id, 5);
 plot(close(min_id,1), close(min_id,2),'rs','MarkerSize',6,'MarkerFaceColor','r');hold on
 path_point = []; % Store the path from closed list
@@ -118,7 +119,7 @@ while search_id ~= 0
     plot(close(point_id,1), close(point_id,2),'rs','MarkerSize',6,'MarkerFaceColor','r');hold on
     search_id = close(point_id,5);
 end
-disp(['Total distance travelled is ',num2str(length(path_point(:,1))*arc_length + arc_length)]);
+%disp(['Total distance travelled is ',num2str(length(path_point(:,1))*arc_length + arc_length)]);
 
 %% Draw the path line
 for i = length(path_point):-1:2
@@ -137,5 +138,5 @@ for i = length(path_point):-1:2
     plot(x_glob, y_glob,'-r','LineWidth',3);hold on
 end
 plot([path_point(1,1),goal_x],[path_point(1,2),goal_y],'-r','LineWidth',3);hold off
-title('Local Hybrid A* Search','FontSize',15);
-xlim([start_x,goal_x]);
+%title('Local Hybrid A* Search','FontSize',15);
+xlim([start_x-2, goal_x+4])

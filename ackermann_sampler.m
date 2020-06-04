@@ -1,6 +1,6 @@
 function goal = ackermann_sampler(direction,source, steering, arc_length, collision_check, obstacles, vertex, id)
 % This function returns the sampler from ackermann steering
-% The return format is [x,y,yaw,distance_travelled,mother_id]
+% The return format is [x, y, yaw, distance_travelled, mother_id, smaple_index, arc_length]
 % 1. Setup the initial state of the sampler
 global id
 x = source(1);
@@ -49,7 +49,7 @@ for i = 1:1:length(steering)
         else
             min_open_dist_abs = Inf;
         end
-        if min_open_dist_abs < 0.5
+        if min_open_dist_abs < 0.25
             continue
         else
             if direction == 1
@@ -58,7 +58,7 @@ for i = 1:1:length(steering)
                 plot(x_glob, y_glob,'-g','Linewidth',1);hold on
             end
             id = id + 1;
-            goal = [goal;[x_glob(end), y_glob(end), yaw_glob_f, m_distance + arc_length, current_id, id]];
+            goal = [goal;[x_glob(end), y_glob(end), yaw_glob_f, m_distance + arc_length, current_id, id, arc_length]];
             %id = id + 1;
             %goal = [goal;[x_glob(1), y_glob(1), yaw_glob_b, m_distance + arc_length,current_id,id]];
         end
