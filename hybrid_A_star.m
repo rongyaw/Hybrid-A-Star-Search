@@ -71,7 +71,7 @@ global id
 id = 1;
 mother_id = 0;
 w_gn = input('Please define the weight of g(n): ');
-open = [start_x, start_y, start_yaw, 0, mother_id, id, arc_length];
+open = [start_x, start_y, start_yaw, 0, mother_id, id, 0];
 vertex_sum = [start_x, start_y];
 open_f = [open_f, pdist([open(1:2);[goal_x, goal_y]])]; % eucliden heuristic function
 open_c = open_f + open(end);
@@ -113,13 +113,14 @@ disp(['Total node explored is ',num2str(length(vertex_sum(:,1)))]);
 search_id = close(min_id, 5);
 plot(close(min_id,1), close(min_id,2),'rs','MarkerSize',6,'MarkerFaceColor','r');hold on
 path_point = []; % Store the path from closed list
+distance = 0;
 while search_id ~= 0
     point_id = find(close(:,6)== search_id);
     path_point = [path_point;[close(point_id,1), close(point_id,2), close(point_id,3)]];
     plot(close(point_id,1), close(point_id,2),'rs','MarkerSize',6,'MarkerFaceColor','r');hold on
     search_id = close(point_id,5);
 end
-%disp(['Total distance travelled is ',num2str(length(path_point(:,1))*arc_length + arc_length)]);
+disp(['Total distance travelled is ',num2str(length(path_point(:,1))*arc_length + arc_length)]);
 
 %% Draw the path line
 for i = length(path_point):-1:2
@@ -138,5 +139,5 @@ for i = length(path_point):-1:2
     plot(x_glob, y_glob,'-r','LineWidth',3);hold on
 end
 plot([path_point(1,1),goal_x],[path_point(1,2),goal_y],'-r','LineWidth',3);hold off
-%title('Local Hybrid A* Search','FontSize',15);
+title('Local Hybrid A* Search','FontSize',15);
 xlim([start_x-2, goal_x+4])

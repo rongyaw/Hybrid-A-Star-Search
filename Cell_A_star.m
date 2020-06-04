@@ -67,7 +67,7 @@ while goal_reach == false
     open_g = []; % Store the corresponding key values: g(n)
     open_c = []; % Combine the previous two as cost value
     close = []; % Create closed list for finding optimal path
-    open = [start_x, start_y, start_yaw, 0, mother_id, id, arc_length];
+    open = [start_x, start_y, start_yaw, 0, mother_id, id, 0];
     vertex_sum = [start_x, start_y];
     open_f = [open_f, pdist([open(1:2);[goal_x, goal_y]])]; % eucliden heuristic function
     open_c = open_f + open(end);
