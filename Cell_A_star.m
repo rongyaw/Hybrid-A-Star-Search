@@ -57,6 +57,9 @@ arc_length = 0.5;
 counter_max = 2;
 goal_reach = false;
 direction = 1;
+distance = 0;
+nodes = 0;
+tic
 while goal_reach == false
     global id
     id = 1;
@@ -94,33 +97,36 @@ while goal_reach == false
             open_f = [open_f, f.'];
             open_c = open_f + w_gn * open(:,4).';
             counter = counter + 1;
-            arc_length = max(0.75, arc_length * 0.5);
+            arc_length = max(0.5, arc_length * 0.5);
             drawnow
             % In this case, the weight of distance travelled is set to be lower than distance to the goal
         else
             if isempty(open_c)
                 direction = direction*(-1);
-                counter_max = min(30, counter_max + 1);
+                counter_max = min(30, counter_max + 5);
                 arc_length = min(arc_length*1.1, 1.5);
                 disp(['Counter max now is ', num2str(counter_max), ' with sample length of ',num2str(arc_length), ' m.']);
             end
         end
     end
-    
     %%  Search through the closed list to find the path.
-    %Start from the last point and draw the path between them
+    % Start from the last point and draw the path between them
     [~,min_id] =  max(close(:, 4));
     search_id = close(min_id, 5);
     plot(close(min_id,1), close(min_id,2),'rs','MarkerSize',6,'MarkerFaceColor','r');
     hold on
     path_point = [close(min_id,1), close(min_id,2), close(min_id,3)]; % Store the path from closed list
+    distance = distance + close(min_id, 7);
     while search_id ~= 0
         point_id = find(close(:,6)== search_id);
         path_point = [path_point;[close(point_id,1), close(point_id,2), close(point_id,3)]];
+        distance = distance + close(point_id, 7);
         plot(close(point_id,1), close(point_id,2),'rs','MarkerSize',6,'MarkerFaceColor','r');
         hold on
         search_id = close(point_id,5);
     end
+    
+    nodes = nodes + (length(path_point(:,1)) - 1);
     
     % Reset the start point to start a new search
     start_x = path_point(1,1);
@@ -139,5 +145,9 @@ while goal_reach == false
     if pdist([path_point(1,1:2);[goal_x, goal_y]]) < 0.5 
         goal_reach = true;
         disp(['Goal Reach']);
+        t = toc;
     end
 end
+disp(['The total distance travelled is ', num2str(distance),' m.']);
+disp(['The average sampling distance is ', num2str(distance/nodes), ' m.']);
+disp(['The total task time is ',num2str(distance/2.5 + t),' seconds.'])

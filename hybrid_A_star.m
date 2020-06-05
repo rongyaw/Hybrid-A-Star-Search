@@ -60,7 +60,7 @@ open_c = []; % Combine the previous two as cost value
 close = []; % Create closed list for finding optimal path
 
 %%  Create the steering angle and arc length for sampling
-steering = linspace(-0.4,0.4,8);
+steering = linspace(-0.41,0.41,6);
 arc_length = input('Please define sampling distance: ');
 
 %%  Searching over the map to reach the goal from the start
@@ -103,7 +103,7 @@ while length(open_c) ~= 0
         % In this case, the weight of distance travelled is set to be lower than distance to the goal
     end
 end
-toc % Stop the timer
+t = toc; % Stop the timer
 disp(['Total node explored is ',num2str(length(vertex_sum(:,1)))]);
 
 %%  Search through the closed list to find the path.
@@ -117,11 +117,12 @@ distance = 0;
 while search_id ~= 0
     point_id = find(close(:,6)== search_id);
     path_point = [path_point;[close(point_id,1), close(point_id,2), close(point_id,3)]];
+    distance = distance + close(point_id, 7);
     plot(close(point_id,1), close(point_id,2),'rs','MarkerSize',6,'MarkerFaceColor','r');hold on
     search_id = close(point_id,5);
 end
-disp(['Total distance travelled is ',num2str(length(path_point(:,1))*arc_length + arc_length)]);
-
+disp(['Total distance travelled is ', num2str(length(path_point(:,1))*arc_length - arc_length)]);
+disp(['Total distance travelled is ', num2str(distance/2.5 + t),' seconds.'])
 %% Draw the path line
 for i = length(path_point):-1:2
     alpha = path_point(i-1,3) - path_point(i,3);

@@ -6,7 +6,7 @@ for i = 1:1:length(obstacles(:,1))
     x_max = obstacles(i,2);
     y_min = obstacles(i,3);
     y_max = obstacles(i,4);
-    if x > (x_min - 0.3) && x < (x_max + 0.3) && y > (y_min - 0.3) && y < (y_max + 0.3)
+    if x > (x_min - 0.2) && x < (x_max + 0.2) && y > (y_min - 0.2) && y < (y_max + 0.2)
         boolean = true;
     end
 end
