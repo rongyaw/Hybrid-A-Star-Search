@@ -45,16 +45,16 @@ end
 start_x = -8;
 start_y = -8;
 start_yaw = 0;%random('Uniform',0,3.14);
-goal_x = 6;
-goal_y = 8;
-plot(start_x, start_y, 'og', 'MarkerSize', 15, 'MarkerFaceColor', 'g');hold on
-plot(goal_x, goal_y, 'or', 'MarkerSize', 15, 'MarkerFaceColor', 'r');hold on
+goal_x = 8;
+goal_y = 2;
+plot(start_x, start_y, 'og', 'MarkerSize', 20, 'MarkerFaceColor', 'g');hold on
+plot(goal_x, goal_y, 'or', 'MarkerSize', 20, 'MarkerFaceColor', 'r');hold on
 xlim([start_x-2, goal_x+4])
 
 %%  Create the steering angle and arc length for sampling
 steering = linspace(-0.41,0.41,6);
-arc_length = 0.5;
-counter_max = 2;
+arc_length = 0.725;
+counter_max = 4;
 goal_reach = false;
 direction = 1;
 distance = 0;
@@ -97,13 +97,13 @@ while goal_reach == false
             open_f = [open_f, f.'];
             open_c = open_f + w_gn * open(:,4).';
             counter = counter + 1;
-            arc_length = max(0.5, arc_length * 0.5);
+            arc_length = max(0.725, arc_length * 0.5);
             drawnow
             % In this case, the weight of distance travelled is set to be lower than distance to the goal
         else
             if isempty(open_c)
                 direction = direction*(-1);
-                counter_max = min(30, counter_max + 5);
+                counter_max = min(30, counter_max + 3);
                 arc_length = min(arc_length*1.1, 1.5);
                 disp(['Counter max now is ', num2str(counter_max), ' with sample length of ',num2str(arc_length), ' m.']);
             end
@@ -136,9 +136,9 @@ while goal_reach == false
     
     % Use different plotting line to show the car's orientation
     if direction == 1
-        plot(path_point(:,1), path_point(:,2), 'r-','Linewidth',4);hold on
+        plot(path_point(:,1), path_point(:,2), 'r-','Linewidth',6);hold on
     else
-        plot(path_point(:,1), path_point(:,2), 'k-','Linewidth',4);hold on
+        plot(path_point(:,1), path_point(:,2), 'k-','Linewidth',6);hold on
     end
     
     % Check if the final destination is reached

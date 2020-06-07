@@ -43,7 +43,7 @@ end
 
 % Setup the start and goal location for nvaigation and plot them
 start_x = -8;
-start_y = -8;
+start_y = -5;
 start_yaw = 0;%random('Uniform',0,3.14);
 goal_x = 6;
 goal_y = 8;
@@ -109,7 +109,7 @@ disp(['Total node explored is ',num2str(length(vertex_sum(:,1)))]);
 %%  Search through the closed list to find the path.
 
 %Start from the last point and draw the path between them
-[~,min_id] =  min(close(:, 8));
+[~,min_id] =  max(close(:, 6));
 search_id = close(min_id, 5);
 plot(close(min_id,1), close(min_id,2),'rs','MarkerSize',6,'MarkerFaceColor','r');hold on
 path_point = []; % Store the path from closed list
