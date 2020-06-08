@@ -34,7 +34,7 @@ for i = 1:1:length(obstacles(:,1))
     max_y = obstacles(i,4);
     obs_x = [min_x, max_x, max_x, min_x, min_x];
     obs_y = [min_y, min_y, max_y, max_y, min_y];
-    plot(obs_x, obs_y, 'k-', 'Linewidth',5);hold on;
+    fill(obs_x, obs_y, 'k');hold on;
     clear min_x;
     clear max_x;
     clear min_y;
@@ -43,12 +43,12 @@ end
 
 % Setup the start and goal location for nvaigation and plot them
 start_x = -8;
-start_y = -5;
+start_y = -8;
 start_yaw = 0;%random('Uniform',0,3.14);
-goal_x = 6;
-goal_y = 8;
-plot(start_x, start_y, 'og', 'MarkerSize', 15, 'MarkerFaceColor', 'g');hold on
-plot(goal_x, goal_y, 'or', 'MarkerSize', 15, 'MarkerFaceColor', 'r');hold on
+goal_x = 8;
+goal_y = 2;
+plot(start_x, start_y, 'or', 'MarkerSize', 20, 'MarkerFaceColor', 'r');hold on
+plot(goal_x, goal_y, 'or', 'MarkerSize', 20, 'MarkerFaceColor', 'r');hold on
 xlim([start_x-2, goal_x+4])
 
 %%  Create open_list and closed list
@@ -118,7 +118,7 @@ while search_id ~= 0
     point_id = find(close(:,6)== search_id);
     path_point = [path_point;[close(point_id,1), close(point_id,2), close(point_id,3)]];
     distance = distance + close(point_id, 7);
-    plot(close(point_id,1), close(point_id,2),'rs','MarkerSize',6,'MarkerFaceColor','r');hold on
+    draw_car(close(point_id,1), close(point_id,2), close(point_id,3));
     search_id = close(point_id,5);
 end
 disp(['Total distance travelled is ', num2str(length(path_point(:,1))*arc_length - arc_length)]);
@@ -137,8 +137,7 @@ for i = length(path_point):-1:2
     end
     x_glob = path_point(i,1) + data_x*cos(path_point(i,3)) - data_y*sin(path_point(i,3));
     y_glob = path_point(i,2) + data_x*sin(path_point(i,3)) + data_y*cos(path_point(i,3));
-    plot(x_glob, y_glob,'-r','LineWidth',3);hold on
+    plot(x_glob, y_glob,'--b','LineWidth',2);hold on
 end
 plot([path_point(1,1),goal_x],[path_point(1,2),goal_y],'-r','LineWidth',3);hold off
-title('Local Hybrid A* Search','FontSize',15);
 xlim([start_x-2, goal_x+4])

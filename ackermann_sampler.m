@@ -53,7 +53,7 @@ for i = 1:1:length(steering)
             continue
         else
             if direction == 1
-                plot(x_glob, y_glob,'-b','Linewidth',1);hold on
+                plot(x_glob, y_glob,'-g','Linewidth',1);hold on
             else
                 plot(x_glob, y_glob,'-g','Linewidth',1);hold on
             end
