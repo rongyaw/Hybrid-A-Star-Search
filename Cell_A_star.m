@@ -19,6 +19,7 @@ set(gca,'visible','off')
 obstacle = [1,2,2,10;
             4,5,0,4;
             -4,-3,-10,-2;
+            4,6,-9,-4;
             7,8,2,8;
             -1,0,-5,1;
             -4,-3,0,8;
@@ -26,23 +27,26 @@ obstacle = [1,2,2,10;
             3,6,4,5;
             1,3,-1,0;
             1,2,-7,-3;
-            4,5,7,10];% Format -> [min_x, max_x, min_y, max_y]
+            4,5,7,10;
+            8,10,-7,-3];% Format -> [min_x, max_x, min_y, max_y]
 obstacles = [];
 % Plot the obstacles in map
-for j = 0:15:45
-    for i = 1:1:length(obstacle(:,1))
-        min_x = obstacle(i,1) + j;
-        max_x = obstacle(i,2) + j;
-        min_y = obstacle(i,3);
-        max_y = obstacle(i,4);
-        obstacles = [obstacles; [min_x, max_x, min_y, max_y]];
-        obs_x = [min_x, max_x, max_x, min_x, min_x];
-        obs_y = [min_y, min_y, max_y, max_y, min_y];
-        fill(obs_x, obs_y,'k'); hold on
-        clear min_x;
-        clear max_x;
-        clear min_y;
-        clear max_y;
+for k = 0:20:80
+    for j = 0:15:75
+        for i = 1:1:length(obstacle(:,1))
+            min_x = obstacle(i,1) + j;
+            max_x = obstacle(i,2) + j;
+            min_y = obstacle(i,3) + k;
+            max_y = obstacle(i,4) + k;
+            obstacles = [obstacles; [min_x, max_x, min_y, max_y]];
+            obs_x = [min_x, max_x, max_x, min_x, min_x];
+            obs_y = [min_y, min_y, max_y, max_y, min_y];
+            fill(obs_x, obs_y,'k'); hold on
+            clear min_x;
+            clear max_x;
+            clear min_y;
+            clear max_y;
+        end
     end
 end
 % Setup the start and goal location for nvaigation and plot them
@@ -50,18 +54,19 @@ start_x = -5;
 start_y = -8;
 start_yaw = 0;%random('Uniform',0,3.14);
 goal_x = 30;
-goal_y = 4;
-plot(start_x, start_y, 'or', 'MarkerSize', 20, 'MarkerFaceColor', 'r');hold on
-plot(goal_x, goal_y, 'or', 'MarkerSize', 20, 'MarkerFaceColor', 'r');hold on
+goal_y = 65;
+plot(start_x, start_y, 'or', 'MarkerSize', 10, 'MarkerFaceColor', 'r');hold on
+plot(goal_x, goal_y, 'or', 'MarkerSize', 10, 'MarkerFaceColor', 'r');hold on
 xlim([start_x-2, goal_x+4])
 set(gca,'xtick',[])
 set(gca,'ytick',[])
 
 %%  Create the steering angle and arc length for sampling
-steering = linspace(-0.41,0.41,6);
-arc_length = 0.75;
+steering = linspace(-0.41,0.41,8);
+arc_length = 0.5;
 arc_record = [];
 counter_max = 3;
+counter_record = [];
 goal_reach = false;
 direction = 1;
 distance = 0;
@@ -90,6 +95,8 @@ while goal_reach == false
         [min_cost,source_ind] = min(open_c); % Pop up the smallest key value from open list
         source = open(source_ind,:); % Pop up the smallest key value from open list
         close = [close; [source, min_cost]];
+        counter_record = [counter_record, counter_max];
+        arc_record = [arc_record, arc_length];
         if pdist([source(1:2);[goal_x, goal_y]]) < 0.5
             break
         end
@@ -104,19 +111,17 @@ while goal_reach == false
             open_f = [open_f, f.'];
             open_c = open_f + w_gn * open(:,4).';
             counter = counter + 1;
-            if counter_max > 20
-                counter_max = counter_max - 2;
+            if counter_max > 3
+                counter_max = counter_max - 1;
             end
-            arc_length = max(0.75, arc_length * 0.95);
-            arc_record = [arc_record, arc_length];
+                arc_length = max(0.5, arc_length * 0.95);
             drawnow
             % In this case, the weight of distance travelled is set to be lower than distance to the goal
         else
             if isempty(open_c)
                 direction = direction*(-1);
-                counter_max = min(30, counter_max + 2);
-                arc_length = min(arc_length*2.5, 5);
-                arc_record = [arc_record, arc_length];
+                counter_max = min(30, counter_max + 10);
+                arc_length = min(arc_length*2, 5);
                 disp(['Counter max now is ', num2str(counter_max), ' with sample length of ',num2str(arc_length), ' m.']);
             end
         end
@@ -129,7 +134,7 @@ while goal_reach == false
     hold on
     path_point = [close(min_id,1), close(min_id,2), close(min_id,3)]; % Store the path from closed list
     distance = distance + close(min_id, 7);
-    while search_id ~= 0
+    while search_id ~= 0  %Plot the path 
         point_id = find(close(:,6)== search_id);
         path_point = [path_point;[close(point_id,1), close(point_id,2), close(point_id,3)]];
         distance = distance + close(point_id, 7);
@@ -137,7 +142,7 @@ while goal_reach == false
         draw_car(close(point_id,1), close(point_id,2), close(point_id,3));
         hold on
         search_id = close(point_id,5);
-    end
+    end 
     
     nodes = nodes + (length(path_point(:,1)) - 1);
     
@@ -148,18 +153,30 @@ while goal_reach == false
     
     % Use different plotting line to show the car's orientation
     if direction == 1
-        plot(path_point(:,1), path_point(:,2), 'b-','Linewidth',3);hold on
+        plot(path_point(:,1), path_point(:,2), 'b-','Linewidth',2);hold on
     else
-        plot(path_point(:,1), path_point(:,2), 'r-','Linewidth',3);hold on
+        plot(path_point(:,1), path_point(:,2), 'r-','Linewidth',2);hold on
     end
     
     % Check if the final destination is reached
     if pdist([path_point(1,1:2);[goal_x, goal_y]]) < 0.5 
         goal_reach = true;
-        disp(['Goal Reach']);
+        disp('Goal Reach');
         t = toc;
     end
 end
+%%  Plotting the navigation data
 disp(['The total distance travelled is ', num2str(distance),' m.']);
 disp(['The average sampling distance is ', num2str(distance/nodes), ' m.']);
-disp(['The total task time is ',num2str(distance/2.5 + t),' seconds.'])
+disp(['The total task time is ',num2str(distance/2.5 + t),' seconds.']);
+figure(2)
+yyaxis left
+plot(1:1:length(arc_record), arc_record,'LineWidth', 2.5);
+xlabel('Sampling Sequence')
+ylabel('Arc length [m]')
+ylim([0.4,2])
+yyaxis right
+plot(1:1:length(counter_record), counter_record,'LineWidth',2.5);
+xlabel('Sampling Sequence')
+ylabel('Sampling Steps')
+ylim([2,20]);

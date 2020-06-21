@@ -19,6 +19,7 @@ set(gca,'visible','off')
 obstacle = [1,2,2,10;
             4,5,0,4;
             -4,-3,-10,-2;
+            4,6,-9,-4;
             7,8,2,8;
             -1,0,-5,1;
             -4,-3,0,8;
@@ -26,33 +27,36 @@ obstacle = [1,2,2,10;
             3,6,4,5;
             1,3,-1,0;
             1,2,-7,-3;
-            4,5,7,10];% Format -> [min_x, max_x, min_y, max_y]
+            4,5,7,10;
+            8,10,-7,-3];% Format -> [min_x, max_x, min_y, max_y]
 obstacles = [];
 % Plot the obstacles in map
-for j = 0:15:45
-    for i = 1:1:length(obstacle(:,1))
-        min_x = obstacle(i,1) + j;
-        max_x = obstacle(i,2) + j;
-        min_y = obstacle(i,3);
-        max_y = obstacle(i,4);
-        obstacles = [obstacles; [min_x, max_x, min_y, max_y]];
-        obs_x = [min_x, max_x, max_x, min_x, min_x];
-        obs_y = [min_y, min_y, max_y, max_y, min_y];
-        fill(obs_x, obs_y,'k'); hold on
-        clear min_x;
-        clear max_x;
-        clear min_y;
-        clear max_y;
+for k = 0:20:80
+    for j = 0:15:75
+        for i = 1:1:length(obstacle(:,1))
+            min_x = obstacle(i,1) + j;
+            max_x = obstacle(i,2) + j;
+            min_y = obstacle(i,3) + k;
+            max_y = obstacle(i,4) + k;
+            obstacles = [obstacles; [min_x, max_x, min_y, max_y]];
+            obs_x = [min_x, max_x, max_x, min_x, min_x];
+            obs_y = [min_y, min_y, max_y, max_y, min_y];
+            fill(obs_x, obs_y,'k'); hold on
+            clear min_x;
+            clear max_x;
+            clear min_y;
+            clear max_y;
+        end
     end
 end
 % Setup the start and goal location for nvaigation and plot them
 start_x = -5;
-start_y = -2;
+start_y = -8;
 start_yaw = 0;%random('Uniform',0,3.14);
-goal_x = 40;
-goal_y = 4;
-plot(start_x, start_y, 'or', 'MarkerSize', 20, 'MarkerFaceColor', 'r');hold on
-plot(goal_x, goal_y, 'or', 'MarkerSize', 20, 'MarkerFaceColor', 'r');hold on
+goal_x = 30;
+goal_y = 65;
+plot(start_x, start_y, 'or', 'MarkerSize', 10, 'MarkerFaceColor', 'r');hold on
+plot(goal_x, goal_y, 'or', 'MarkerSize', 10, 'MarkerFaceColor', 'r');hold on
 xlim([start_x-2, goal_x+4])
 set(gca,'xtick',[])
 set(gca,'ytick',[])
@@ -66,9 +70,9 @@ open_c = []; % Combine the previous two as cost value
 close = []; % Create closed list for finding optimal path
 
 %%  Create the steering angle and arc length for sampling
-steering = linspace(-0.41,0.41,6);
-arc_length = input('Please define sampling distance: ');
-
+steering = linspace(-0.41,0.41,8);
+%arc_length = input('Please define sampling distance: ');
+arc_length = 0.5;
 %%  Searching over the map to reach the goal from the start
 % Initialize the open list
 % Global id keep track of the total vertex visited, it serve the function
@@ -76,7 +80,8 @@ arc_length = input('Please define sampling distance: ');
 global id
 id = 1;
 mother_id = 0;
-w_gn = input('Please define the weight of g(n): ');
+%w_gn = input('Please define the weight of g(n): ');
+w_gn = 0.1;
 open = [start_x, start_y, start_yaw, 0, mother_id, id, 0];
 vertex_sum = [start_x, start_y];
 open_f = [open_f, pdist([open(1:2);[goal_x, goal_y]])]; % eucliden heuristic function
