@@ -13,9 +13,10 @@ clear all
 clc
 close all
 dbstop if error
+set(gca,'visible','off')
 
 %%  Create the obstacles and start/goal location
-obstacles = [1,2,2,10;
+obstacle = [1,2,2,10;
             4,5,0,4;
             -4,-3,-10,-2;
             7,8,2,8;
@@ -26,30 +27,35 @@ obstacles = [1,2,2,10;
             1,3,-1,0;
             1,2,-7,-3;
             4,5,7,10];% Format -> [min_x, max_x, min_y, max_y]
+obstacles = [];
 % Plot the obstacles in map
-for i = 1:1:length(obstacles(:,1))
-    min_x = obstacles(i,1);
-    max_x = obstacles(i,2);
-    min_y = obstacles(i,3);
-    max_y = obstacles(i,4);
-    obs_x = [min_x, max_x, max_x, min_x, min_x];
-    obs_y = [min_y, min_y, max_y, max_y, min_y];
-    fill(obs_x, obs_y, 'k');hold on;
-    clear min_x;
-    clear max_x;
-    clear min_y;
-    clear max_y;
+for j = 0:15:45
+    for i = 1:1:length(obstacle(:,1))
+        min_x = obstacle(i,1) + j;
+        max_x = obstacle(i,2) + j;
+        min_y = obstacle(i,3);
+        max_y = obstacle(i,4);
+        obstacles = [obstacles; [min_x, max_x, min_y, max_y]];
+        obs_x = [min_x, max_x, max_x, min_x, min_x];
+        obs_y = [min_y, min_y, max_y, max_y, min_y];
+        fill(obs_x, obs_y,'k'); hold on
+        clear min_x;
+        clear max_x;
+        clear min_y;
+        clear max_y;
+    end
 end
-
 % Setup the start and goal location for nvaigation and plot them
-start_x = -8;
-start_y = -8;
+start_x = -5;
+start_y = -2;
 start_yaw = 0;%random('Uniform',0,3.14);
-goal_x = 8;
-goal_y = 2;
+goal_x = 40;
+goal_y = 4;
 plot(start_x, start_y, 'or', 'MarkerSize', 20, 'MarkerFaceColor', 'r');hold on
 plot(goal_x, goal_y, 'or', 'MarkerSize', 20, 'MarkerFaceColor', 'r');hold on
 xlim([start_x-2, goal_x+4])
+set(gca,'xtick',[])
+set(gca,'ytick',[])
 
 %%  Create open_list and closed list
 % This is the simplified version a heap structure.
@@ -137,7 +143,7 @@ for i = length(path_point):-1:2
     end
     x_glob = path_point(i,1) + data_x*cos(path_point(i,3)) - data_y*sin(path_point(i,3));
     y_glob = path_point(i,2) + data_x*sin(path_point(i,3)) + data_y*cos(path_point(i,3));
-    plot(x_glob, y_glob,'--b','LineWidth',2);hold on
+    plot(x_glob, y_glob,'-b','LineWidth',2);hold on
 end
 plot([path_point(1,1),goal_x],[path_point(1,2),goal_y],'-r','LineWidth',3);hold off
 xlim([start_x-2, goal_x+4])

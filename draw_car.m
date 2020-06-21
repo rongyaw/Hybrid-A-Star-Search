@@ -1,6 +1,6 @@
 function draw_car(x,y,yaw)
 % draw the car in car coordinate
-wheelbase = 0.55;
+wheelbase = 0.5;
 trackwidth = 0.3;
 xf = wheelbase*0.4;
 xr = - wheelbase*0.6;
@@ -19,5 +19,5 @@ p33 = [x;y] + coord_trans * p3.';
 
 pos_x = [p00(1), p11(1), p22(1), p33(1), p00(1)];
 pos_y = [p00(2), p11(2), p22(2), p33(2), p00(2)];
-fill(pos_x, pos_y,[0.4660 0.6740 0.1880]);hold on
+fill(pos_x, pos_y,'y');hold on
 end

@@ -53,9 +53,9 @@ for i = 1:1:length(steering)
             continue
         else
             if direction == 1
-                plot(x_glob, y_glob,'-g','Linewidth',1);hold on
+                plot(x_glob, y_glob,'Linewidth',1.8,'Color', [0.31 0.81 0.5]);hold on
             else
-                plot(x_glob, y_glob,'-g','Linewidth',1);hold on
+                plot(x_glob, y_glob,'Linewidth',1.8,'Color', [0.31 0.81 0.5]);hold on
             end
             id = id + 1;
             goal = [goal;[x_glob(end), y_glob(end), yaw_glob_f, m_distance + arc_length, current_id, id, arc_length]];

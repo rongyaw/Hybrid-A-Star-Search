@@ -14,8 +14,9 @@ clc
 close all
 dbstop if error
 warning('off');
+set(gca,'visible','off')
 %%  Create the obstacles and start/goal location
-obstacles = [1,2,2,10;
+obstacle = [1,2,2,10;
             4,5,0,4;
             -4,-3,-10,-2;
             7,8,2,8;
@@ -26,35 +27,40 @@ obstacles = [1,2,2,10;
             1,3,-1,0;
             1,2,-7,-3;
             4,5,7,10];% Format -> [min_x, max_x, min_y, max_y]
+obstacles = [];
 % Plot the obstacles in map
-for i = 1:1:length(obstacles(:,1))
-    min_x = obstacles(i,1);
-    max_x = obstacles(i,2);
-    min_y = obstacles(i,3);
-    max_y = obstacles(i,4);
-    obs_x = [min_x, max_x, max_x, min_x, min_x];
-    obs_y = [min_y, min_y, max_y, max_y, min_y];
-    fill(obs_x, obs_y,'k'); hold on
-    clear min_x;
-    clear max_x;
-    clear min_y;
-    clear max_y;
+for j = 0:15:45
+    for i = 1:1:length(obstacle(:,1))
+        min_x = obstacle(i,1) + j;
+        max_x = obstacle(i,2) + j;
+        min_y = obstacle(i,3);
+        max_y = obstacle(i,4);
+        obstacles = [obstacles; [min_x, max_x, min_y, max_y]];
+        obs_x = [min_x, max_x, max_x, min_x, min_x];
+        obs_y = [min_y, min_y, max_y, max_y, min_y];
+        fill(obs_x, obs_y,'k'); hold on
+        clear min_x;
+        clear max_x;
+        clear min_y;
+        clear max_y;
+    end
 end
-
 % Setup the start and goal location for nvaigation and plot them
-start_x = -8;
+start_x = -5;
 start_y = -8;
 start_yaw = 0;%random('Uniform',0,3.14);
-goal_x = 8;
-goal_y = 2;
+goal_x = 30;
+goal_y = 4;
 plot(start_x, start_y, 'or', 'MarkerSize', 20, 'MarkerFaceColor', 'r');hold on
 plot(goal_x, goal_y, 'or', 'MarkerSize', 20, 'MarkerFaceColor', 'r');hold on
 xlim([start_x-2, goal_x+4])
+set(gca,'xtick',[])
+set(gca,'ytick',[])
 
 %%  Create the steering angle and arc length for sampling
 steering = linspace(-0.41,0.41,6);
-arc_length = 0.725;
-counter_max = 4;
+arc_length = 0.75;
+counter_max = 3;
 goal_reach = false;
 direction = 1;
 distance = 0;
@@ -97,14 +103,17 @@ while goal_reach == false
             open_f = [open_f, f.'];
             open_c = open_f + w_gn * open(:,4).';
             counter = counter + 1;
-            arc_length = max(0.725, arc_length * 0.5);
+            if counter_max > 20
+                counter_max = counter_max - 2;
+            end
+            arc_length = max(0.75, arc_length * 0.9);
             drawnow
             % In this case, the weight of distance travelled is set to be lower than distance to the goal
         else
             if isempty(open_c)
                 direction = direction*(-1);
                 counter_max = min(30, counter_max + 2);
-                arc_length = min(arc_length*1.1, 1.5);
+                arc_length = min(arc_length*2, 3);
                 disp(['Counter max now is ', num2str(counter_max), ' with sample length of ',num2str(arc_length), ' m.']);
             end
         end
@@ -133,7 +142,6 @@ while goal_reach == false
     start_x = path_point(1,1);
     start_y = path_point(1,2);
     start_yaw = path_point(1,3);
-    %plot(start_x, start_y, '>b', 'MarkerSize', 15, 'MarkerFaceColor', 'b');hold on
     
     % Use different plotting line to show the car's orientation
     if direction == 1
