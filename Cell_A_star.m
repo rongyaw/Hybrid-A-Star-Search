@@ -60,6 +60,7 @@ set(gca,'ytick',[])
 %%  Create the steering angle and arc length for sampling
 steering = linspace(-0.41,0.41,6);
 arc_length = 0.75;
+arc_record = [];
 counter_max = 3;
 goal_reach = false;
 direction = 1;
@@ -106,14 +107,16 @@ while goal_reach == false
             if counter_max > 20
                 counter_max = counter_max - 2;
             end
-            arc_length = max(0.75, arc_length * 0.9);
+            arc_length = max(0.75, arc_length * 0.95);
+            arc_record = [arc_record, arc_length];
             drawnow
             % In this case, the weight of distance travelled is set to be lower than distance to the goal
         else
             if isempty(open_c)
                 direction = direction*(-1);
                 counter_max = min(30, counter_max + 2);
-                arc_length = min(arc_length*2, 3);
+                arc_length = min(arc_length*2.5, 5);
+                arc_record = [arc_record, arc_length];
                 disp(['Counter max now is ', num2str(counter_max), ' with sample length of ',num2str(arc_length), ' m.']);
             end
         end
