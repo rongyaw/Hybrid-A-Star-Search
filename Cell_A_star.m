@@ -53,20 +53,22 @@ end
 start_x = -5;
 start_y = -8;
 start_yaw = 0;%random('Uniform',0,3.14);
-goal_x = 30;
-goal_y = 65;
+goal_x = 6;
+goal_y = 60;
 plot(start_x, start_y, 'or', 'MarkerSize', 10, 'MarkerFaceColor', 'r');hold on
 plot(goal_x, goal_y, 'or', 'MarkerSize', 10, 'MarkerFaceColor', 'r');hold on
 xlim([start_x-2, goal_x+4])
+ylim([start_y-2, goal_y+4])
 set(gca,'xtick',[])
 set(gca,'ytick',[])
 
 %%  Create the steering angle and arc length for sampling
 steering = linspace(-0.41,0.41,8);
-arc_length = 0.5;
+arc_length = 0.75;
 arc_record = [];
-counter_max = 3;
+counter_max = 5;
 counter_record = [];
+node_record = [];
 goal_reach = false;
 direction = 1;
 distance = 0;
@@ -111,21 +113,22 @@ while goal_reach == false
             open_f = [open_f, f.'];
             open_c = open_f + w_gn * open(:,4).';
             counter = counter + 1;
-            if counter_max > 3
-                counter_max = counter_max - 1;
+            if counter_max > 20
+                counter_max = counter_max - 2;
             end
-                arc_length = max(0.5, arc_length * 0.95);
+                arc_length = max(0.75, arc_length * 0.9);
             drawnow
             % In this case, the weight of distance travelled is set to be lower than distance to the goal
         else
             if isempty(open_c)
                 direction = direction*(-1);
-                counter_max = min(30, counter_max + 10);
-                arc_length = min(arc_length*2, 5);
+                counter_max = min(20, counter_max + 5);
+                %arc_length = min(arc_length*3, 5);
                 disp(['Counter max now is ', num2str(counter_max), ' with sample length of ',num2str(arc_length), ' m.']);
             end
         end
     end
+    node_record = [node_record, length(open(:,1)) + length(close(:,1))];
     %%  Search through the closed list to find the path.
     % Start from the last point and draw the path between them
     [~,min_id] =  max(close(:, 4));
@@ -143,9 +146,7 @@ while goal_reach == false
         hold on
         search_id = close(point_id,5);
     end 
-    
-    nodes = nodes + (length(path_point(:,1)) - 1);
-    
+        
     % Reset the start point to start a new search
     start_x = path_point(1,1);
     start_y = path_point(1,2);
@@ -155,7 +156,7 @@ while goal_reach == false
     if direction == 1
         plot(path_point(:,1), path_point(:,2), 'b-','Linewidth',2);hold on
     else
-        plot(path_point(:,1), path_point(:,2), 'r-','Linewidth',2);hold on
+        plot(path_point(:,1), path_point(:,2), 'b-','Linewidth',2);hold on
     end
     
     % Check if the final destination is reached
@@ -167,7 +168,7 @@ while goal_reach == false
 end
 %%  Plotting the navigation data
 disp(['The total distance travelled is ', num2str(distance),' m.']);
-disp(['The average sampling distance is ', num2str(distance/nodes), ' m.']);
+disp(['The average nodes computed per step is ', num2str(mean(node_record))]);
 disp(['The total task time is ',num2str(distance/2.5 + t),' seconds.']);
 figure(2)
 yyaxis left
